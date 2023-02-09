@@ -1,0 +1,38 @@
+version: 1
+default_environment: dev
+project_id: c9cf76e7-cfed-455b-81db-4f24d9d0fb3a
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-csv
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+  - name: tap-mysql
+    variant: transferwise
+    pip_url: pipelinewise-tap-mysql
+    config:
+      user: bi
+      host: 192.168.7.24
+      port: 3306
+      database: itldw_staging
+    select:
+    - itldw_staging-staging_eFMS_csTransaction.*
+    metadata:
+      '*':
+        replication-method: FULL_TABLE
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl
+  - name: target-postgres
+    variant: transferwise
+    pip_url: pipelinewise-target-postgres
+    config:
+      host: localhost
+      port: 5432
+      user: postgres
+      dbname: postgres
+      add_metadata_columns: true
