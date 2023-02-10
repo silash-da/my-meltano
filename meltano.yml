@@ -14,15 +14,33 @@ plugins:
     variant: transferwise
     pip_url: pipelinewise-tap-mysql
     config:
-      user: bi
-      host: 192.168.7.24
+      user: root
+      host: localhost
       port: 3306
-      database: itldw_staging
+      database: source
+    capabilities:
+      - catalog
+      - discover
+      - state
     select:
-    - itldw_staging-staging_eFMS_csTransaction.*
+    - source-customers.*
     metadata:
       '*':
-        replication-method: FULL_TABLE
+        replication-method: INCREMENTAL
+        replication-key: datetime_modified
+  - name: tap-mssql
+    variant: wintersrd
+    pip_url: tap-mssql
+    config:
+      host: 192.168.0.122
+      database: eFMS
+      user: bi
+    select:
+    - dbo-csTransaction.*
+    metadata:
+      '*':
+        replication-method: INCREMENTAL
+        replication-key: DatetimeModified
   loaders:
   - name: target-jsonl
     variant: andyh1203
