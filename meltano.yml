@@ -3,8 +3,25 @@ default_environment: dev
 project_id: c9cf76e7-cfed-455b-81db-4f24d9d0fb3a
 environments:
 - name: dev
+  config:
+    plugins:
+      utilities:
+      - name: dbt-postgres
+        config:
+          host: localhost
+          user: postgres
+          dbname: dev
+          
 - name: staging
 - name: prod
+  config:
+    plugins:
+      utilities:
+      - name: dbt-postgres
+        config:
+          host: localhost
+          user: postgres
+          dbname: prod
 plugins:
   extractors:
   - name: tap-csv
@@ -13,34 +30,45 @@ plugins:
   - name: tap-mysql
     variant: transferwise
     pip_url: pipelinewise-tap-mysql
+    capabilities:
+    - catalog
+    - discover
+    - state
     config:
       user: root
       host: localhost
       port: 3306
       database: source
-    capabilities:
-      - catalog
-      - discover
-      - state
     select:
     - source-customers.*
     metadata:
       '*':
         replication-method: INCREMENTAL
         replication-key: datetime_modified
+
   - name: tap-mssql
     variant: wintersrd
     pip_url: tap-mssql
     config:
-      host: 192.168.0.122
-      database: eFMS
-      user: bi
+      host: localhost
+      database: AdventureWorks2019
+      user: cdc
+    load_schema: AdventureWorks2019
     select:
-    - dbo-csTransaction.*
+    - Sales-SalesOrderDetail.*
+    - Sales-Customer.*
+    - Sales-SalesOrderHeader.*
+    - Sales-SalesTerritory.*
+    - Sales-Store.*
+    - Production-Product.*
+    - Production-Location.*
+    - Person-Person.*
+    - HumanResources-Employee.*
+    - HumanResources-Department.*
+
     metadata:
       '*':
-        replication-method: INCREMENTAL
-        replication-key: DatetimeModified
+        replication-method: FULL_TABLE
   loaders:
   - name: target-jsonl
     variant: andyh1203
@@ -52,5 +80,9 @@ plugins:
       host: localhost
       port: 5432
       user: postgres
-      dbname: postgres
+      dbname: raw
       add_metadata_columns: true
+  utilities:
+  - name: dbt-postgres
+    variant: dbt-labs
+    pip_url: dbt-core~=1.3.0 dbt-postgres~=1.3.0 git+https://github.com/meltano/dbt-ext.git@main

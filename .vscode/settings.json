@@ -21,6 +21,21 @@
             "name": "postgres - local",
             "database": "postgres",
             "username": "postgres"
+        },
+        {
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 1433,
+            "driver": "MSSQL",
+            "name": "AdventureWorks2019-DB",
+            "database": "AdventureWorks2019",
+            "username": "cdc",
+            "password": "P@ssw0rd"
         }
     ]
 }
